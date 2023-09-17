@@ -16,7 +16,8 @@ class CategoriesController extends Controller
     public function index()
     {
         try {
-            $categories = Categorie::paginate(10);
+            $categories = Categorie::where('user_id', Auth::user()->id)
+                ->paginate(10);
             return view('categories.index', compact(['categories']));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão

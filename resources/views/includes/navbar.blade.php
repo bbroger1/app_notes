@@ -13,8 +13,8 @@
             <!-- Left Side Of Navbar -->
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url('/notes/create') }}">
-                        Criar Nota
+                    <a class="nav-link" href="{{ url('/notes') }}">
+                        Notas
                     </a>
                 </li>
 

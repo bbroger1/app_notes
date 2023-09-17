@@ -6,6 +6,7 @@ use App\Models\Note;
 use App\Http\Requests\NoteRequest;
 use App\Models\Categorie;
 use Illuminate\Support\Facades\Auth;
+use PhpParser\Node\Expr\FuncCall;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class NotesController extends Controller
@@ -18,12 +19,21 @@ class NotesController extends Controller
     public function index()
     {
         try {
-            $notes = Note::latest()->paginate(12);
-            return view('notes.index', compact(['notes']));
+            $notesQuery = Note::orderBy('status', 'asc')
+                ->orderBy('deadline', 'asc')
+                ->orderBy('priority', 'desc');
+
+            if (Auth::user()->is_admin != 1) {
+                $notesQuery->where('user_id', Auth::user()->id);
+            }
+
+            $notes = $notesQuery->paginate(12);
+
+            return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão
             session()->flash('error', 'Sistema inoperante.');
-            return view('categories.index', compact(['categories']));
+            return view('notes.index');
         }
     }
 
@@ -35,7 +45,10 @@ class NotesController extends Controller
     public function create()
     {
         try {
-            $categories = Categorie::orderBy('title', 'asc')->select('id', 'title')->get();
+            $categories = Categorie::where('user_id', Auth::user()->id)
+                ->orderBy('title', 'asc')
+                ->select('id', 'title')
+                ->get();
             $isEdit = false;
             return view('notes.create', compact(['isEdit', 'categories']));
         } catch (\Throwable $e) {
@@ -153,10 +166,13 @@ class NotesController extends Controller
         try {
             $data = $request->validated();
             $data['user_id'] = Auth::user()->id;
-            $note->update($data);
-
-            // Adiciona mensagem flash à sessão
-            session()->flash('success', 'Nota editada com sucesso.');
+            if ($note->update($data)) {
+                // Adiciona mensagem flash à sessão
+                session()->flash('success', 'Nota editada com sucesso.');
+            } else {
+                // Adiciona mensagem flash à sessão
+                session()->flash('error', 'Nota não pode ser editada. [1]');
+            };
 
             return redirect()->route('notes.index');
         } catch (\Throwable $e) {
@@ -181,6 +197,26 @@ class NotesController extends Controller
         } catch (\Throwable $e) {
             session()->flash('error', 'Nota excluída com sucesso.');
             return redirect()->route('notes.index');
+        }
+    }
+
+    public function check(Note $note)
+    {
+        try {
+            $status = $note->status;
+
+            // Atualiza o campo status
+            if ($status == 1) {
+                $note->status = 2;
+            } else if ($status == 2) {
+                $note->status = 1;
+            }
+
+            $note->save();
+
+            return response()->json(['status' => 'success']);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

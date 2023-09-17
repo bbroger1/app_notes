@@ -54,13 +54,22 @@
                                     required>
                                     @if (!$isEdit)
                                         <option selected>Selecione</option>
+                                        <option value="1">Muito Alta
+                                        </option>
+                                        <option value="2">Alta</option>
+                                        <option value="3">Média</option>
+                                        <option value="2">Baixa</option>
+                                        <option value="3">Muito Baixa
+                                        </option>
+                                    @else
+                                        <option {{ $note->priority == 1 ? 'selected' : ' ' }} value="1">Muito Alta
+                                        </option>
+                                        <option {{ $note->priority == 2 ? 'selected' : ' ' }} value="2">Alta</option>
+                                        <option {{ $note->priority == 3 ? 'selected' : ' ' }} value="3">Média</option>
+                                        <option {{ $note->priority == 4 ? 'selected' : ' ' }} value="4">Baixa</option>
+                                        <option {{ $note->priority == 5 ? 'selected' : ' ' }} value="5">Muito Baixa
+                                        </option>
                                     @endif
-                                    <option {{ $note->priority == 1 ? 'selected' : ' ' }} value="1">Muito Alta</option>
-                                    <option {{ $note->priority == 2 ? 'selected' : ' ' }} value="2">Alta</option>
-                                    <option {{ $note->priority == 3 ? 'selected' : ' ' }} value="3">Média</option>
-                                    <option {{ $note->priority == 4 ? 'selected' : ' ' }} value="2">Baixa</option>
-                                    <option {{ $note->priority == 5 ? 'selected' : ' ' }} value="3">Muito Baixa
-                                    </option>
                                 </select>
                                 @error('priority')
                                     <span class="invalid-feedback" role="alert">
@@ -77,11 +86,16 @@
                                     required>
                                     @if (!$isEdit)
                                         <option selected>Selecione</option>
+                                        @foreach ($categories as $categorie)
+                                            <option value="{{ $categorie->id }}">{{ $categorie->title }}</option>
+                                        @endforeach
+                                    @else
+                                        @foreach ($categories as $categorie)
+                                            <option {{ $note->category_id == $categorie->id ? 'selected' : ' ' }}
+                                                value="{{ $categorie->id }}">{{ $categorie->title }}</option>
+                                        @endforeach
                                     @endif
-                                    @foreach ($categories as $categorie)
-                                        <option {{ $note->category_id == $categorie->id ? 'selected' : ' ' }}
-                                            value="{{ $categorie->id }}">{{ $categorie->title }}</option>
-                                    @endforeach
+
                                 </select>
                                 @error('category')
                                     <span class="invalid-feedback" role="alert">

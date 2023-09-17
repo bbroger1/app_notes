@@ -1,7 +1,11 @@
 /*meu css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
     background-color: rgb(240, 238, 234);
+    font-family: Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 .custom-button {
@@ -16,3 +20,30 @@ body {
     z-index: 999;
     margin: 0;
 }
+
+/* 1 - Muito Alta, 2 - Alta, 3 - Média, 4 - Baixa, 5 - Muito Baixa */
+.priority-1 {
+    background-color: #dc3545;
+    color: white;
+}
+
+.priority-2 {
+    background-color: rgb(248, 120, 120);
+    color: white;
+}
+
+.priority-3 {
+    background-color: #ffc107;
+}
+
+.priority-4 {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.priority-5 {
+    background-color: #198754;
+}
+
+/* Situação da tarefa (campo date)
+1 - Em ser, 2 - Vencida, 3 - Concluída */
