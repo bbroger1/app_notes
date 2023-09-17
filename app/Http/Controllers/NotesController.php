@@ -6,11 +6,14 @@ use App\Models\Note;
 use App\Http\Requests\NoteRequest;
 use App\Models\Categorie;
 use Illuminate\Support\Facades\Auth;
-use PhpParser\Node\Expr\FuncCall;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 class NotesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('owner')->only('show', 'edit', 'destroy');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -94,6 +97,10 @@ class NotesController extends Controller
     {
         try {
             $note = Note::join('categories', 'categories.id', '=', 'notes.category_id')
+                ->leftJoin('users', function ($join) {
+                    $join->on('users.id', '=', 'notes.user_id')
+                        ->orWhere('users.is_admin', 1);
+                })
                 ->select(
                     'notes.id as id',
                     'notes.title',
@@ -105,6 +112,10 @@ class NotesController extends Controller
                     'categories.title as category_title'
                 )
                 ->where('notes.id', $note->id)
+                ->where(function ($query) {
+                    $query->where('notes.user_id', Auth::user()->id)
+                        ->orWhere('users.is_admin', 1);
+                })
                 ->first();
 
             switch ($note->priority) {
@@ -165,7 +176,12 @@ class NotesController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['user_id'] = Auth::user()->id;
+            if (Auth::user()->is_admin) {
+                $data['user_id'] = $note->user_id;
+            } else {
+                $data['user_id'] = Auth::user()->id;
+            }
+
             if ($note->update($data)) {
                 // Adiciona mensagem flash à sessão
                 session()->flash('success', 'Nota editada com sucesso.');
@@ -190,12 +206,16 @@ class NotesController extends Controller
     public function destroy(Note $note)
     {
         try {
-            $note->destroy($note->id);
-            // Adiciona mensagem flash à sessão
-            session()->flash('success', 'Nota excluída com sucesso.');
-            return redirect()->route('notes.index');
+            if ($note->destroy($note->id)) {
+                // Adiciona mensagem flash à sessão
+                session()->flash('success', 'Nota excluída com sucesso.');
+                return redirect()->route('notes.index');
+            } else {
+                // Adiciona mensagem flash à sessão
+                session()->flash('error', 'Nota não pode ser excluída. [1]');
+            };
         } catch (\Throwable $e) {
-            session()->flash('error', 'Nota excluída com sucesso.');
+            session()->flash('error', 'Nota não pode ser excluída.');
             return redirect()->route('notes.index');
         }
     }
