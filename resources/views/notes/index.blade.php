@@ -23,21 +23,19 @@
                             </div>
 
                             <div class="card-footer">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-center" title="Vencimento">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
-                                                fill="rgba(var(--bs-link-color-rgb),var(--bs-link-opacity,1))"
-                                                class="bi bi-calendar-event me-2" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
-                                                <path
-                                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                                            </svg>
-                                            <span class="deadline-{{ $note->status }}">{{ $note->formattedDeadline }}</span>
-                                        </div>
+                                <div class="row d-flex justify-content-center align-items-center">
+                                    <div class="col-md-6" title="Vencimento">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="rgba(var(--bs-link-color-rgb),var(--bs-link-opacity,1))"
+                                            class="bi bi-calendar-event me-2" viewBox="0 0 16 16">
+                                            <path
+                                                d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
+                                            <path
+                                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                                        </svg>
+                                        <span class="deadline">{{ $note->formattedDeadline }}</span>
                                     </div>
-                                    <div class="col-md-6 d-flex justify-content-center">
+                                    <div class="col-md-6 d-flex align-items-center">
                                         <div class="me-3">
                                             <a href="#" title="Concluir"
                                                 onclick="toggleSVG(event, {{ $note->id }})">
@@ -94,6 +92,10 @@
                                             </form>
                                         </div>
                                     </div>
+                                </div>
+                                <hr style="padding: 0; margin: 2px">
+                                <div class="row justify-content-center">
+                                    {{ $note->name }}
                                 </div>
                             </div>
                         </div>

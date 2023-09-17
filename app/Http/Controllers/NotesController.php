@@ -6,12 +6,16 @@ use App\Models\Note;
 use App\Http\Requests\NoteRequest;
 use App\Models\Categorie;
 use Illuminate\Support\Facades\Auth;
+use App\Services\FlashService;
 
 class NotesController extends Controller
 {
-    public function __construct()
+    protected $flashService;
+
+    public function __construct(FlashService $flashService)
     {
         $this->middleware('owner')->only('show', 'edit', 'destroy');
+        $this->flashService = $flashService;
     }
 
     /**
@@ -22,12 +26,17 @@ class NotesController extends Controller
     public function index()
     {
         try {
-            $notesQuery = Note::orderBy('status', 'asc')
-                ->orderBy('deadline', 'asc')
-                ->orderBy('priority', 'desc');
+            $notesQuery = Note::join('users', 'users.id', '=', 'notes.user_id')
+                ->select(
+                    'notes.*',
+                    'users.name'
+                )
+                ->orderBy('notes.status', 'asc')
+                ->orderBy('notes.deadline', 'asc')
+                ->orderBy('notes.priority', 'desc');
 
             if (Auth::user()->is_admin != 1) {
-                $notesQuery->where('user_id', Auth::user()->id);
+                $notesQuery->where('notes.user_id', Auth::user()->id);
             }
 
             $notes = $notesQuery->paginate(12);
@@ -35,8 +44,7 @@ class NotesController extends Controller
             return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão
-            session()->flash('error', 'Sistema inoperante.');
-            return view('notes.index');
+            $this->flashService->setFlashMessage('error', 'Sistema inoperante.');
         }
     }
 
@@ -56,7 +64,7 @@ class NotesController extends Controller
             return view('notes.create', compact(['isEdit', 'categories']));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão
-            session()->flash('error', 'Erro ao carregar a página.');
+            $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
@@ -76,13 +84,12 @@ class NotesController extends Controller
             Note::create($note);
 
             // Adiciona mensagem flash à sessão
-            session()->flash('success', 'Nota criada com sucesso.');
-
+            $this->flashService->setFlashMessage('success', 'Nota criada com sucesso.');
             return redirect()->route('notes.index');
         } catch (\Throwable $e) {
             dd($e);
             // Adiciona mensagem flash à sessão
-            session()->flash('error', 'Não foi possível criar a nota.');
+            $this->flashService->setFlashMessage('error', 'Não foi possível criar a nota.');
             return redirect()->route('notes.create');
         }
     }
@@ -141,7 +148,7 @@ class NotesController extends Controller
             return view('notes.show', compact(['note']));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão
-            session()->flash('error', 'Erro ao carregar a página.');
+            $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
@@ -160,7 +167,7 @@ class NotesController extends Controller
             return view('notes.create', compact(['isEdit', 'note', 'categories']));
         } catch (\Throwable $e) {
             // Adiciona mensagem flash à sessão
-            session()->flash('error', 'Erro ao carregar a página.');
+            $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
@@ -184,15 +191,15 @@ class NotesController extends Controller
 
             if ($note->update($data)) {
                 // Adiciona mensagem flash à sessão
-                session()->flash('success', 'Nota editada com sucesso.');
+                $this->flashService->setFlashMessage('success', 'Nota editada com sucesso.');
             } else {
                 // Adiciona mensagem flash à sessão
-                session()->flash('error', 'Nota não pode ser editada. [1]');
+                $this->flashService->setFlashMessage('error', 'Nota não pode ser editada. [1]');
             };
 
             return redirect()->route('notes.index');
         } catch (\Throwable $e) {
-            session()->flash('error', 'Nota não pode ser editada.');
+            $this->flashService->setFlashMessage('error', 'Nota não pode ser editada.');
             return redirect()->route('notes.create');
         }
     }
@@ -212,10 +219,10 @@ class NotesController extends Controller
                 return redirect()->route('notes.index');
             } else {
                 // Adiciona mensagem flash à sessão
-                session()->flash('error', 'Nota não pode ser excluída. [1]');
+                $this->flashService->setFlashMessage('error', 'Nota não pode ser excluída. [1]');
             };
         } catch (\Throwable $e) {
-            session()->flash('error', 'Nota não pode ser excluída.');
+            $this->flashService->setFlashMessage('error', 'Nota não pode ser excluída.');
             return redirect()->route('notes.index');
         }
     }
@@ -223,18 +230,18 @@ class NotesController extends Controller
     public function check(Note $note)
     {
         try {
-            $status = $note->status;
-
             // Atualiza o campo status
-            if ($status == 1) {
+            if ($status = $note->status == 1) {
                 $note->status = 2;
             } else if ($status == 2) {
                 $note->status = 1;
             }
 
-            $note->save();
-
-            return response()->json(['status' => 'success']);
+            if ($note->save()) {
+                return response()->json(['status' => 'success']);
+            } else {
+                return response()->json(['status' => 'error']);
+            };
         } catch (\Throwable $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }

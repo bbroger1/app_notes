@@ -43,7 +43,11 @@ body {
 
 .priority-5 {
     background-color: #198754;
+    color: white;
 }
 
 /* Situação da tarefa (campo date)
 1 - Em ser, 2 - Vencida, 3 - Concluída */
+.deadline {
+    font-size: 14px;
+}
