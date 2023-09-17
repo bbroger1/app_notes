@@ -1,0 +1,18 @@
+/*meu css */
+
+body {
+    background-color: rgb(240, 238, 234);
+}
+
+.custom-button {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    cursor: pointer;
+    color: red;
+}
+
+#alert {
+    z-index: 999;
+    margin: 0;
+}
