@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Note;
-use App\Http\Requests\NoteRequest;
+use App\Models\User;
+use App\Mail\SharedEmail;
 use App\Models\Categorie;
-use Illuminate\Support\Facades\Auth;
 use App\Services\FlashService;
+use App\Http\Requests\NoteRequest;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\SharedRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class NotesController extends Controller
 {
@@ -18,41 +23,30 @@ class NotesController extends Controller
         $this->flashService = $flashService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         try {
-            $notesQuery = Note::join('users', 'users.id', '=', 'notes.user_id')
-                ->select(
-                    'notes.*',
-                    'users.name'
-                )
-                ->orderBy('notes.status', 'asc')
-                ->orderBy('notes.deadline', 'asc')
-                ->orderBy('notes.priority', 'desc');
+            $notesQuery = Note::with('user')
+                ->orderBy('status', 'asc')
+                ->orderBy('deadline', 'asc')
+                ->orderBy('priority', 'desc');
 
             if (Auth::user()->is_admin != 1) {
-                $notesQuery->where('notes.user_id', Auth::user()->id);
+                $notesQuery->where('user_id', Auth::user()->id);
             }
 
             $notes = $notesQuery->paginate(12);
 
             return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
-            // Adiciona mensagem flash à sessão
+            // Registra o erro no log
+            Log::error($e);
+
             $this->flashService->setFlashMessage('error', 'Sistema inoperante.');
+            return redirect()->route('error');
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         try {
@@ -63,18 +57,12 @@ class NotesController extends Controller
             $isEdit = false;
             return view('notes.create', compact(['isEdit', 'categories']));
         } catch (\Throwable $e) {
-            // Adiciona mensagem flash à sessão
+
             $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(NoteRequest $request)
     {
         try {
@@ -83,23 +71,17 @@ class NotesController extends Controller
 
             Note::create($note);
 
-            // Adiciona mensagem flash à sessão
+
             $this->flashService->setFlashMessage('success', 'Nota criada com sucesso.');
             return redirect()->route('notes.index');
         } catch (\Throwable $e) {
             dd($e);
-            // Adiciona mensagem flash à sessão
+
             $this->flashService->setFlashMessage('error', 'Não foi possível criar a nota.');
             return redirect()->route('notes.create');
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Note  $note
-     * @return \Illuminate\Http\Response
-     */
     public function show(Note $note)
     {
         try {
@@ -147,18 +129,12 @@ class NotesController extends Controller
 
             return view('notes.show', compact(['note']));
         } catch (\Throwable $e) {
-            // Adiciona mensagem flash à sessão
+
             $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Note  $note
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Note $note)
     {
         try {
@@ -166,19 +142,12 @@ class NotesController extends Controller
             $isEdit = true;
             return view('notes.create', compact(['isEdit', 'note', 'categories']));
         } catch (\Throwable $e) {
-            // Adiciona mensagem flash à sessão
+
             $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Note  $note
-     * @return \Illuminate\Http\Response
-     */
     public function update(NoteRequest $request, Note $note)
     {
         try {
@@ -190,10 +159,10 @@ class NotesController extends Controller
             }
 
             if ($note->update($data)) {
-                // Adiciona mensagem flash à sessão
+
                 $this->flashService->setFlashMessage('success', 'Nota editada com sucesso.');
             } else {
-                // Adiciona mensagem flash à sessão
+
                 $this->flashService->setFlashMessage('error', 'Nota não pode ser editada. [1]');
             };
 
@@ -204,21 +173,15 @@ class NotesController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Note  $note
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Note $note)
     {
         try {
             if ($note->destroy($note->id)) {
-                // Adiciona mensagem flash à sessão
-                session()->flash('success', 'Nota excluída com sucesso.');
+
+                $this->flashService->setFlashMessage('success', 'Nota excluída com sucesso.');
                 return redirect()->route('notes.index');
             } else {
-                // Adiciona mensagem flash à sessão
+
                 $this->flashService->setFlashMessage('error', 'Nota não pode ser excluída. [1]');
             };
         } catch (\Throwable $e) {
@@ -243,7 +206,43 @@ class NotesController extends Controller
                 return response()->json(['status' => 'error']);
             };
         } catch (\Throwable $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            $this->flashService->setFlashMessage('error', 'Comando não pode ser registrado.');
+            return redirect()->route('notes.index');
+        }
+    }
+
+    public function shared(Note $note, SharedRequest $request)
+    {
+        try {
+            $email = $request->user_email;
+            $user = User::where('email', $email)
+                ->first();
+
+            $note_user = $note->user->name;
+
+            if ($user) {
+                return redirect()->route('notes.index');
+            } else {
+                $mailData = [
+                    'email' => $email,
+                    'user' => $note_user,
+                    'link' => 'http://127.0.0.1:8000'
+                ];
+
+                Mail::to($email)->send(new SharedEmail($mailData));
+
+                if (count(Mail::failures()) > 0) {
+                    $this->flashService->setFlashMessage('error', 'Ocorreu um erro ao enviar o e-mail.');
+                } else {
+                    $this->flashService->setFlashMessage('warning', 'Usuário inexistente, convite enviado.');
+                }
+
+                return redirect()->route('notes.index');
+            }
+        } catch (\Throwable $e) {
+            dd($e);
+            $this->flashService->setFlashMessage('error', 'Comando não pode ser registrado.');
+            return redirect()->route('notes.index');
         }
     }
 }

@@ -8,7 +8,7 @@ function closedMessage() {
             var bsAlert = new bootstrap.Alert(alertElement);
             bsAlert.close();
         }
-    }, 1500);
+    }, 2500);
 }
 
 // Concluir card e alterar o SVG
@@ -50,6 +50,21 @@ function toggleSVG(event, id) {
         .catch((error) => {
             console.error("Ocorreu um erro:", error);
         });
+}
+
+// incluir usuário na nota
+function addUserNote(event, id) {
+    event.preventDefault();
+    var formShared = document.getElementById("form_shared");
+    var idNote = document.getElementById("note_id");
+
+    idNote.value = id;
+    formShared.action = "/notes/" + id + "/shared";
+
+    var meuModal = new bootstrap.Modal(
+        document.getElementById("add_user_note")
+    );
+    meuModal.show();
 }
 
 document.addEventListener("DOMContentLoaded", function () {

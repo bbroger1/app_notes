@@ -3,6 +3,7 @@
 @section('content')
     @include('../includes/navbar')
     @include('../includes/messages')
+    @include('../modals/modals')
     <div class="container ">
         <div class="row">
             <div class="d-flex justify-content-end mt-2 mb-2">
@@ -93,9 +94,15 @@
                                         </div>
                                     </div>
                                 </div>
-                                <hr style="padding: 0; margin: 2px">
+                            </div>
+                            <div class="card-footer">
                                 <div class="row justify-content-center">
-                                    {{ $note->name }}
+                                    <img title="{{ $note->user->first_name }}"
+                                        src="{{ asset('img/' . $note->user->image) }}" alt="{{ $note->user->first_name }}"
+                                        class="rounded-circle me-2" id="user_image">
+                                    <img title="Adicionar" src="{{ asset('img/adicionar.png') }}" alt="adicionar"
+                                        class="rounded-circle me-2" id="add_image"
+                                        onclick="addUserNote(event, {{ $note->id }})">
                                 </div>
                             </div>
                         </div>
