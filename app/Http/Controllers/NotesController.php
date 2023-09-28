@@ -19,7 +19,7 @@ class NotesController extends Controller
 
     public function __construct(FlashService $flashService)
     {
-        $this->middleware('owner')->only('show', 'edit', 'destroy');
+        $this->middleware('owner')->only('destroy');
         $this->flashService = $flashService;
     }
 
@@ -181,7 +181,6 @@ class NotesController extends Controller
                 $this->flashService->setFlashMessage('success', 'Nota excluída com sucesso.');
                 return redirect()->route('notes.index');
             } else {
-
                 $this->flashService->setFlashMessage('error', 'Nota não pode ser excluída. [1]');
             };
         } catch (\Throwable $e) {
@@ -194,9 +193,10 @@ class NotesController extends Controller
     {
         try {
             // Atualiza o campo status
-            if ($status = $note->status == 1) {
+            $status = $note->status;
+            if ($status == 1) {
                 $note->status = 2;
-            } else if ($status == 2) {
+            } else {
                 $note->status = 1;
             }
 
