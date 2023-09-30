@@ -17,7 +17,8 @@
                 @foreach ($notes as $note)
                     <div class="col-md-3 mb-3">
                         <div class="card shadow border-0">
-                            <div class="card-header priority-{{ $note->priority }} text-center">{{ $note->title }}</div>
+                            <div id="card-{{ $note->id }}" class="card-header priority-{{ $note->priority }} text-center">
+                                {{ $note->title }}</div>
 
                             <div class="card-body">
                                 {{ $note->description }}
@@ -99,10 +100,15 @@
                                 <div class="row justify-content-center">
                                     <img title="{{ $note->user->first_name }}"
                                         src="{{ asset('img/' . $note->user->image) }}" alt="{{ $note->user->first_name }}"
-                                        class="rounded-circle me-2" id="user_image">
-                                    <img title="Adicionar" src="{{ asset('img/adicionar.png') }}" alt="adicionar"
+                                        class="rounded-circle me-2 mb-2" id="user_image">
+                                    @foreach ($note->shared as $shared)
+                                        <img title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}"
+                                            alt="{{ $shared->first_name }}" class="rounded-circle me-2" id="user_image">
+                                    @endforeach
+                                    <img title="Compartilhar" src="{{ asset('img/adicionar.png') }}" alt="adicionar"
                                         class="rounded-circle me-2" id="add_image"
-                                        onclick="addUserNote(event, {{ $note->id }})">
+                                        onclick="addUserNote(event, 'index', {{ $note->id }})">
+
                                 </div>
                             </div>
                         </div>

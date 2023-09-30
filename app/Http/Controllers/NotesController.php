@@ -26,7 +26,7 @@ class NotesController extends Controller
     public function index()
     {
         try {
-            $notesQuery = Note::with('user')
+            $notesQuery = Note::with('user', 'shared')
                 ->orderBy('status', 'asc')
                 ->orderBy('deadline', 'asc')
                 ->orderBy('priority', 'desc');
@@ -37,13 +37,15 @@ class NotesController extends Controller
 
             $notes = $notesQuery->paginate(12);
 
+            $notes->load('shared'); // Carrega o relacionamento 'shared' para cada instância de 'Note'
+
             return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
             // Registra o erro no log
             Log::error($e);
 
             $this->flashService->setFlashMessage('error', 'Sistema inoperante.');
-            return redirect()->route('error');
+            //return redirect()->route('error');
         }
     }
 
@@ -85,7 +87,8 @@ class NotesController extends Controller
     public function show(Note $note)
     {
         try {
-            $note = Note::join('categories', 'categories.id', '=', 'notes.category_id')
+            $note = Note::with('shared')
+                ->join('categories', 'categories.id', '=', 'notes.category_id')
                 ->leftJoin('users', function ($join) {
                     $join->on('users.id', '=', 'notes.user_id')
                         ->orWhere('users.is_admin', 1);
@@ -107,6 +110,11 @@ class NotesController extends Controller
                 })
                 ->first();
 
+            if (!$note) {
+                $this->flashService->setFlashMessage('error', 'Nota não encontrada.');
+                return redirect()->route('notes.index');
+            }
+
             switch ($note->priority) {
                 case '1':
                     $note->priority = 'Muito alta';
@@ -127,9 +135,8 @@ class NotesController extends Controller
                     return "";
             }
 
-            return view('notes.show', compact(['note']));
+            return view('notes.show', compact('note'));
         } catch (\Throwable $e) {
-
             $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }
@@ -196,6 +203,7 @@ class NotesController extends Controller
             $status = $note->status;
             if ($status == 1) {
                 $note->status = 2;
+                //$note->priority = 0;
             } else {
                 $note->status = 1;
             }
@@ -214,14 +222,31 @@ class NotesController extends Controller
     public function shared(Note $note, SharedRequest $request)
     {
         try {
+            $page = $request->page;
             $email = $request->user_email;
             $user = User::where('email', $email)
                 ->first();
 
+            if ($user->id == Auth::user()->id && $user->is_admin == 0) {
+                $this->flashService->setFlashMessage('error', 'Você é o responsável pela nota.');
+                return redirect()->route('notes.' . $page, $note->id);
+            }
+
+            if ($note->shared()->where('user_id', $user->id)->exists()) {
+                $this->flashService->setFlashMessage('warning', 'A nota já foi compartilhada com esse usuário.');
+                return redirect()->route('notes.' . $page, $note->id);
+            }
+
             $note_user = $note->user->name;
 
             if ($user) {
-                return redirect()->route('notes.index');
+                $note->shared()->attach($user->id);
+                if ($page == "edit" && $note->id) {
+                    $this->flashService->setFlashMessage('success', 'Nota compartilhada com sucesso.');
+                    return redirect()->route('notes.' . $page, $note->id);
+                }
+                $this->flashService->setFlashMessage('success', 'Nota compartilhada com sucesso.');
+                return redirect()->route('notes.' . $page);
             } else {
                 $mailData = [
                     'email' => $email,
@@ -237,12 +262,39 @@ class NotesController extends Controller
                     $this->flashService->setFlashMessage('warning', 'Usuário inexistente, convite enviado.');
                 }
 
-                return redirect()->route('notes.index');
+                if ($page == "edit" && $note->id) {
+                    return redirect()->route('notes.' . $page, $note->id);
+                }
+
+                return redirect()->route('notes.' . $page);
             }
         } catch (\Throwable $e) {
-            dd($e);
+            // Registra o erro no log
+            Log::error($e);
             $this->flashService->setFlashMessage('error', 'Comando não pode ser registrado.');
-            return redirect()->route('notes.index');
+            if ($page == "edit" && $note->id) {
+                return redirect()->route('notes.' . $page, $note->id);
+            }
+
+            return redirect()->route('notes.' . $page);
+        }
+    }
+
+    public function notShared(Note $note, User $user)
+    {
+        try {
+            if ($user) {
+                $note->shared()->detach($user->id);
+                return response()->json(['status' => 'success']);
+            } else {
+                return response()->json(['status' => 'error']);
+            }
+        } catch (\Throwable $e) {
+            // Registra o erro no log
+            Log::error($e);
+
+            $this->flashService->setFlashMessage('error', 'Comando não pode ser registrado.');
+            return redirect()->route('notes.edit', $note->id);
         }
     }
 }

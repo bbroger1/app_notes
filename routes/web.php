@@ -15,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('notes', NotesController::class);
     Route::post('/notes/{note}/check', [NotesController::class, 'check'])->name('notes.check');
     Route::post('/notes/{note}/shared', [NotesController::class, 'shared'])->name('notes.shared');
+    Route::post('/notes/{note}/not-shared/{user}', [NotesController::class, 'notShared'])->name('notes.not-shared');
 
     Route::resource('categories', CategoriesController::class);
 

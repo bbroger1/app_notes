@@ -14,6 +14,7 @@
                         <span class="msg-popup">* Caso ainda não seja cadastrado, será enviado email solicitando o
                             cadastro.</span>
                         <input type="hidden" name="note_id" id="note_id" value="">
+                        <input type="hidden" name="page" id="page" value="">
                     </div>
                 </div>
                 <div class="modal-footer">

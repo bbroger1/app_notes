@@ -25,6 +25,9 @@ class SharedRequest extends FormRequest
     {
         return [
             "user_email" => 'required|string|email|email:rfc|max:255',
+            "page" => 'required|string',
+            "note_id" => 'required|integer'
+
         ];
     }
 }

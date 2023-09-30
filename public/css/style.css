@@ -59,6 +59,26 @@ body {
     height: 20px;
 }
 
+.img_shared_edit {
+    width: auto;
+    height: 25px;
+}
+
 .msg-popup {
     font-size: 10px;
+}
+
+.position-relative {
+    display: inline-flex;
+    align-items: flex-start;
+    position: relative;
+}
+
+.remove-icon {
+    position: absolute;
+    top: -8px;
+    right: 2px;
+    color: #000;
+    font-size: 14px;
+    cursor: pointer;
 }

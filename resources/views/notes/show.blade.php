@@ -13,7 +13,7 @@
                         <label for="title" class="col-md-4 col-form-label text-md-end">{{ __('Título') }}</label>
                         <div class="col-md-6">
                             <input id="title" type="text" class="form-control" name="title"
-                                value="{{ $note->title }}" readonly>
+                                value="{{ $note->title }}" readonly required autofocus>
                         </div>
                     </div>
 
@@ -21,7 +21,7 @@
                         <label for="deadline" class="col-md-4 col-form-label text-md-end">{{ __('Prazo Final') }}</label>
                         <div class="col-md-6">
                             <input id="deadline" type="date" class="form-control" name="deadline"
-                                value="{{ $note->deadline }}" readonly required autocomplete="deadline" autofocus>
+                                value="{{ $note->deadline }}" readonly required autocomplete="deadline">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -47,6 +47,17 @@
                         <div class="col-md-6">
                             <textarea id="description" type="text" class="form-control" name="description" readonly>{{ $note->description }}
                             </textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="description"
+                            class="col-md-4 col-form-label text-md-end">{{ __('Compartilhado com:') }}</label>
+                        <div class="col-md-6 d-flex align-items-center">
+                            @foreach ($note->shared as $shared)
+                                <img title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}"
+                                    alt="{{ $shared->first_name }}" class="rounded-circle me-2" id="user_image">
+                            @endforeach
                         </div>
                     </div>
                 </div>

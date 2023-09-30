@@ -3,6 +3,7 @@
 @section('content')
     @include('../includes/navbar')
     @include('../includes/messages')
+    @include('../modals/modals')
     <div class="container">
         <div class="row mt-4">
             <div class="card">
@@ -116,6 +117,27 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="shared"
+                                class="col-md-4 col-form-label text-md-end">{{ __('Compartilhado com:') }}</label>
+                            <div class="col-md-6 d-flex align-items-center">
+                                @foreach ($note->shared as $shared)
+                                    <div class="position-relative me-2"
+                                        onclick="removeUserNote(event, {{ $note->id }}, {{ $shared->id }})">
+                                        <img id="" title="{{ $shared->first_name }}"
+                                            src="{{ asset('img/' . $shared->image) }}" alt="{{ $shared->first_name }}"
+                                            class="rounded-circle me-2 img_shared_edit">
+                                        <span class="remove-icon" title="Descompartilhar">
+                                            <i class="fa-solid fa-circle-xmark"></i>
+                                        </span>
+                                    </div>
+                                @endforeach
+                                <img title="Compartilhar" src="{{ asset('img/adicionar.png') }}" alt="adicionar"
+                                    class="rounded-circle" id="add_image"
+                                    onclick="addUserNote(event, 'edit', {{ $note->id }})">
                             </div>
                         </div>
 
