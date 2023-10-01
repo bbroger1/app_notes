@@ -22,6 +22,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style-profile.css') }}" rel="stylesheet">
 <body>
 
     @yield('content')

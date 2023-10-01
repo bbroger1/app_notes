@@ -19,7 +19,7 @@ class NotesController extends Controller
 
     public function __construct(FlashService $flashService)
     {
-        $this->middleware('owner')->only('destroy');
+        $this->middleware('owner')->only('show, edit, destroy');
         $this->flashService = $flashService;
     }
 
@@ -31,13 +31,20 @@ class NotesController extends Controller
                 ->orderBy('deadline', 'asc')
                 ->orderBy('priority', 'desc');
 
-            if (Auth::user()->is_admin != 1) {
-                $notesQuery->where('user_id', Auth::user()->id);
+            // Se o usuário é admin, ele deve ver todas as notas
+            if (Auth::user()->is_admin) {
+                $notesQuery->where('user_id', '<>', null);
+            } else {
+                // Se o usuário não é admin, ele deve ver apenas as suas notas e as notas compartilhadas com ele
+                $notesQuery->where(function ($query) {
+                    $query->where('user_id', Auth::user()->id)
+                        ->orWhereHas('shared', function ($query) {
+                            $query->where('user_id', Auth::user()->id);
+                        });
+                });
             }
 
             $notes = $notesQuery->paginate(12);
-
-            $notes->load('shared'); // Carrega o relacionamento 'shared' para cada instância de 'Note'
 
             return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
@@ -106,7 +113,10 @@ class NotesController extends Controller
                 ->where('notes.id', $note->id)
                 ->where(function ($query) {
                     $query->where('notes.user_id', Auth::user()->id)
-                        ->orWhere('users.is_admin', 1);
+                        ->orWhere('users.is_admin', 1)
+                        ->orWhereHas('shared', function ($query) {
+                            $query->where('user_id', Auth::user()->id);
+                        });
                 })
                 ->first();
 
@@ -137,6 +147,7 @@ class NotesController extends Controller
 
             return view('notes.show', compact('note'));
         } catch (\Throwable $e) {
+            //dd($e);
             $this->flashService->setFlashMessage('error', 'Erro ao carregar a página.');
             return redirect()->route('notes.index');
         }

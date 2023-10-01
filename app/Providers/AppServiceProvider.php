@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use App\Services\FlashService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +30,21 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrap();
+
+        Blade::directive('canEdit', function ($note) {
+            return "<?php if ({$note}->user_id == auth()->id() || auth()->user()->is_admin == 1) : ?>";
+        });
+
+        Blade::directive('endcanEdit', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canDestroy', function ($note) {
+            return "<?php if ({$note}->user_id == auth()->id() || auth()->user()->is_admin == 1) : ?>";
+        });
+
+        Blade::directive('endcanDestroy', function () {
+            return "<?php endif; ?>";
+        });
     }
 }
