@@ -14,6 +14,18 @@ function closedMessage() {
     }, 2500);
 }
 
+//apresentar a preview da imagem do perfil
+function showPreview(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var preview = document.getElementById("preview");
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 // Concluir card e alterar o SVG
 function toggleSVG(event, id) {
     event.preventDefault();

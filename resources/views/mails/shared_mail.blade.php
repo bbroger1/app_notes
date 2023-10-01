@@ -19,7 +19,9 @@
 
         .btn:hover {
             background-color: #0056b3;
+            color: #fff;
         }
+
     </style>
 </head>
 
