@@ -83,10 +83,12 @@
                 </div>
                 <div class="card-footer">
                     <div class="row justify-content-center">
-                        <img title="{{ $note->user->first_name }}" src="{{ asset('img/' . $note->user->image) }}" alt="{{ $note->user->first_name }}" class="rounded-circle me-2 mb-2" id="user_image">
+                        <img title="{{ $note->user->first_name }}" src="{{ $note->user->image != "user.png" ? asset("storage/img/profile/" . $note->user->id . "/" . $note->user->image) : asset("img/user.png")}}" alt="{{ $note->user->first_name }}" class="rounded-circle me-2 mb-2" id="user_image">
+
                         @foreach ($note->shared as $shared)
-                        <img title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}" alt="{{ $shared->first_name }}" class="rounded-circle me-2" id="user_image">
+                        <img title="{{ $shared->first_name }}" src="{{ $shared->image != "user.png" ? asset("storage/img/profile/" . $shared->id . "/" . $shared->image) : asset("img/user.png")}}" alt=" {{ $shared->first_name }}" class="rounded-circle me-2" id="user_image">
                         @endforeach
+
                         @canEdit($note)
                         <img title="Compartilhar" src="{{ asset('img/adicionar.png') }}" alt="adicionar" class="rounded-circle me-2" id="add_image" onclick="addUserNote(event, 'index', {{ $note->id }})">
                         @endcanEdit

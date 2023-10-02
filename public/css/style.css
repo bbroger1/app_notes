@@ -55,7 +55,7 @@ body {
 
 #user_image,
 #add_image {
-    width: auto;
+    width: 45px;
     height: 20px;
 }
 
