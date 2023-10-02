@@ -113,7 +113,6 @@
                     <div class="row mb-3">
                         <label for="shared" class="col-md-4 col-form-label text-md-end">{{ __('Compartilhado com:') }}</label>
                         <div class="col-md-6 d-flex align-items-center">
-
                             @foreach ($note->shared as $shared)
                             <div class="position-relative me-2" onclick="removeUserNote(event, {{ $note->id }}, {{ $shared->id }})">
                                 <img id="" title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}" alt="{{ $shared->first_name }}" class="rounded-circle me-2 img_shared_edit">

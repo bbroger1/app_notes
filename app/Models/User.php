@@ -18,8 +18,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
         'name',
+        'phone',
         'email',
         'password',
+        'image'
     ];
 
     protected $hidden = [
@@ -41,10 +43,6 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return explode(' ', $fullName, 2)[0];
-    }
-
-    public function profile()
-    {
     }
 
     public function canEdit(Note $note)

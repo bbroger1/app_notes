@@ -8,7 +8,7 @@ use App\Http\Controllers\CategoriesController;
 
 //rotas Notes
 Route::middleware(['auth', 'verified'])->controller(NotesController::class)->group(function () {
-    Route::resource('notes',);
+    Route::resource('notes', NotesController::class);
     Route::post('/notes/{note}/check', 'check')->name('notes.check');
     Route::post('/notes/{note}/shared', 'shared')->name('notes.shared');
     Route::post('/notes/{note}/not-shared/{user}', 'notShared')->name('notes.not-shared');
@@ -17,11 +17,12 @@ Route::middleware(['auth', 'verified'])->controller(NotesController::class)->gro
 //rotas Users
 Route::middleware(['auth', 'verified'])->controller(UsersController::class)->group(function () {
     Route::get('/profile', 'profile')->name('profile');
+    Route::patch('/profile/{user}/update', 'update')->name('profile.update');
 });
 
 //rotas Categories
 Route::middleware(['auth', 'verified'])->controller(CategoriesController::class)->group(function () {
-    Route::resource('categories',);
+    Route::resource('categories', CategoriesController::class);
 });
 
 //rotas do sistema

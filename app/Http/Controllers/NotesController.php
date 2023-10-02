@@ -44,7 +44,7 @@ class NotesController extends Controller
                 });
             }
 
-            $notes = $notesQuery->paginate(12);
+            $notes = $notesQuery->paginate(8);
 
             return view('notes.index', compact('notes'));
         } catch (\Throwable $e) {
@@ -177,10 +177,8 @@ class NotesController extends Controller
             }
 
             if ($note->update($data)) {
-
                 $this->flashService->setFlashMessage('success', 'Nota editada com sucesso.');
             } else {
-
                 $this->flashService->setFlashMessage('error', 'Nota não pode ser editada. [1]');
             };
 

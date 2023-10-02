@@ -15,16 +15,19 @@ function closedMessage() {
 }
 
 //apresentar a preview da imagem do perfil
-function showPreview(input) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var preview = document.getElementById("preview");
-            preview.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-}
+const fileInput = document.getElementById("customFile");
+const profileImage = document.getElementById("profileImage");
+
+fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        profileImage.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+});
 
 // Concluir card e alterar o SVG
 function toggleSVG(event, id) {
