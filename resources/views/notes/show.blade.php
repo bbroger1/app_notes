@@ -51,7 +51,7 @@
                     <label for="description" class="col-md-4 col-form-label text-md-end">{{ __('Compartilhado com:') }}</label>
                     <div class="col-md-6 d-flex align-items-center">
                         @foreach ($note->shared as $shared)
-                        <img title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}" alt="{{ $shared->first_name }}" class="rounded-circle me-2" id="user_image">
+                        <img title="{{ $shared->first_name }}" src="{{ $shared->image != "user.png" ? asset("storage/img/profile/" . $shared->id . "/" . $shared->image) : asset("img/user.png")}}" alt=" {{ $shared->first_name }}" class="rounded-circle me-2" id="user_image_show">
                         @endforeach
                     </div>
                 </div>
@@ -67,6 +67,8 @@
                             </svg> Editar
                         </a>
                     </div>
+                    @endcanEdit
+                    @canDestroy($note)
                     <div>
                         <form action="{{ route('notes.destroy', $note->id) }}" method="POST">
                             @csrf
@@ -79,7 +81,8 @@
                             </button>
                         </form>
                     </div>
-                    @endcanEdit
+                    @endcanDestroy
+
                 </div>
             </div>
         </div>

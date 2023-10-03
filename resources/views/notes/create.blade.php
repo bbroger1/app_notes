@@ -115,13 +115,14 @@
                         <div class="col-md-6 d-flex align-items-center">
                             @foreach ($note->shared as $shared)
                             <div class="position-relative me-2" onclick="removeUserNote(event, {{ $note->id }}, {{ $shared->id }})">
-                                <img id="" title="{{ $shared->first_name }}" src="{{ asset('img/' . $shared->image) }}" alt="{{ $shared->first_name }}" class="rounded-circle me-2 img_shared_edit">
+                                <img title="{{ $shared->first_name }}" src="{{ $shared->image != "user.png" ? asset("storage/img/profile/" . $shared->id . "/" . $shared->image) : asset("img/user.png")}}" alt=" {{ $shared->first_name }}" class="rounded-circle me-2" id="user_image_show">
+
                                 <span class="remove-icon" title="Descompartilhar">
                                     <i class="fa-solid fa-circle-xmark"></i>
                                 </span>
                             </div>
                             @endforeach
-                            <img title="Compartilhar" src="{{ asset('img/adicionar.png') }}" alt="adicionar" class="rounded-circle" id="add_image" onclick="addUserNote(event, 'edit', {{ $note->id }})">
+                            <img title="Compartilhar" src="{{ asset('img/adicionar.png') }}" alt="adicionar" class="rounded-circle" onclick="addUserNote(event, 'edit', {{ $note->id }})">
                         </div>
                     </div>
                     @endif

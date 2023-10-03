@@ -29,7 +29,7 @@ class NotesController extends Controller
             $notesQuery = Note::with('user', 'shared')
                 ->orderBy('status', 'asc')
                 ->orderBy('deadline', 'asc')
-                ->orderBy('priority', 'desc');
+                ->orderBy('priority', 'asc');
 
             // Se o usuário é admin, ele deve ver todas as notas
             if (Auth::user()->is_admin) {
@@ -52,7 +52,7 @@ class NotesController extends Controller
             Log::error($e);
 
             $this->flashService->setFlashMessage('error', 'Sistema inoperante.');
-            //return redirect()->route('error');
+            return redirect()->route('error');
         }
     }
 
@@ -102,6 +102,7 @@ class NotesController extends Controller
                 })
                 ->select(
                     'notes.id as id',
+                    'notes.user_id',
                     'notes.title',
                     'notes.priority as priority_id',
                     'notes.priority',

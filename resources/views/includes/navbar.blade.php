@@ -42,8 +42,7 @@
                 @else
                 <li class="nav-item dropdown">
                     <a id="navbarDropdown" class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                        <img src='{{ Auth::user()->image != "user.png" ? asset("storage/img/profile/" . Auth::user()->id . "/" . Auth::user()->image) : asset("img/user.png") }}' alt="Imagem do Usuário" class="rounded-circle me-2" style="width: 20px; height: 20px;">
-
+                        <img src='{{ Auth::user()->image != "user.png" ? asset("storage/img/profile/" . Auth::user()->id . "/" . Auth::user()->image) : asset("img/user.png") }}' alt="Imagem do Usuário" class="rounded-circle me-2" style="width: 30px; height: 30px;">
                         <span>{{ Auth::user()->first_name }}</span>
                     </a>
 

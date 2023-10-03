@@ -25,12 +25,7 @@
                             <div class="row g-3">
                                 <div class="text-center">
                                     <div class="square position-relative display-2 mb-3">
-                                        @if($user->image)
-                                        <img id="profileImage" name="image" src="{{ asset("storage/img/profile/$user->id/$user->image") }}" alt="{{ $user->image }}" width="200" height="200">
-
-                                        @else
-                                        <i class="fas fa-fw fa-user position-absolute top-50 start-50 translate-middle text-secondary"></i>
-                                        @endif
+                                        <img id="profileImage" name="image" src='{{ $user->image != "user.png" ? asset("storage/img/profile/$user->id/$user->image") : asset("img/user.png") }}' alt="{{ $user->image }}" width="200" height="200">
                                     </div>
                                     <input type="file" id="customFile" name="image" hidden="">
                                     <label class="btn btn-sm btn-success" for="customFile">Upload</label>

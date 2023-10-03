@@ -1,6 +1,7 @@
 // meus scripts
 document.addEventListener("DOMContentLoaded", function () {
     closedMessage();
+    previewImage();
 });
 
 // Fechar as mensagens
@@ -15,19 +16,23 @@ function closedMessage() {
 }
 
 //apresentar a preview da imagem do perfil
-const fileInput = document.getElementById("customFile");
-const profileImage = document.getElementById("profileImage");
+function previewImage() {
+    const fileInput = document.getElementById("customFile");
+    const profileImage = document.getElementById("profileImage");
 
-fileInput.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
+    if (fileInput) {
+        fileInput.addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            const reader = new FileReader();
 
-    reader.onload = (e) => {
-        profileImage.src = e.target.result;
-    };
+            reader.onload = (e) => {
+                profileImage.src = e.target.result;
+            };
 
-    reader.readAsDataURL(file);
-});
+            reader.readAsDataURL(file);
+        });
+    }
+}
 
 // Concluir card e alterar o SVG
 function toggleSVG(event, id) {
