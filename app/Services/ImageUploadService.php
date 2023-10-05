@@ -16,11 +16,9 @@ class ImageUploadService
 
         if (Storage::exists($oldImagePath)) {
             $this->deleteImage($oldImagePath);
-            return $path;
         }
 
-        // Caso ocorra algum erro no upload da nova imagem, não será excluída a imagem antiga
-        return null;
+        return $path;
     }
 
     private function deleteImage($path)

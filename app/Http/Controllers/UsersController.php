@@ -53,22 +53,19 @@ class UsersController extends Controller
                 unset($data['password']);
             }
 
-            try {
-                if (!$user->update($data)) {
-                    // Reverter a alteração do caminho da imagem
-                    $user->image = $old_image;
-                    $user->save();
+            if (!$user->update($data)) {
+                // Reverter a alteração do caminho da imagem
+                $user->image = $old_image;
+                $user->save();
 
-                    session()->flash('error', 'Dados não puderam ser editados.');
-                    return redirect()->route('profile');
-                }
-            } catch (\Throwable $e) {
-                dd($e);
+                session()->flash('error', 'Dados não puderam ser editados.');
+                return redirect()->route('profile');
             }
 
             session()->flash('success', 'Dados editados com sucesso.');
             return redirect()->route('profile');
         } catch (\Throwable $e) {
+            dd($e);
             session()->flash('error', 'Dados não puderam ser editados.');
             return redirect()->route('profile');
         }
